@@ -1,5 +1,5 @@
 # Non-Restoring-Division-Design
-This design performs 3 bit unsigned division using the established Non Restoring algorithm
+This design performs 3 bit unsigned division using the established Non Restoring algorithm, yet to be completely tested for all test vectors
 It is designed on vivado ML version 2025.2.1
 
 Enhanced FSM understanding and honed debugging skills
