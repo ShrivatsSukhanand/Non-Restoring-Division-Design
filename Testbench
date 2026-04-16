@@ -1,0 +1,59 @@
+
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 04/16/2026 08:58:41 PM
+// Design Name: 
+// Module Name: tb
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module tb();
+  reg [3:0] dividend_inp;
+  reg [3:0] divisor_inp;
+  reg rst;
+  reg clk;
+  wire [7:0] accumulator_rem_dividend;
+  integer j = 4;
+  
+  division2 uut(
+    .dividend_inp(dividend_inp),
+    .divisor_inp(divisor_inp),
+    .rst(rst),
+    .clk(clk),
+    .accumulator_rem_dividend(accumulator_rem_dividend)
+  );
+   always #5 clk = ~clk;
+   
+   initial begin
+    clk = 0;
+    rst = 1;
+
+    #5; rst = 0;
+     #10; dividend_inp = 4'd7;
+     divisor_inp =4'd3;
+     #5;
+    repeat(j) begin
+     $display("[%t] %h\n",$time,uut.accumulator_rem_dividend);
+     #100;
+     end
+    // @(posedge clk);
+    #1000;
+     $finish;
+   end
+    
+    
+endmodule
