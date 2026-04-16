@@ -1,6 +1,6 @@
-//non restroing division design
+//non restroing division design for unsigned 4 bit numbers
 //fsm: INIT->LOAD->CALC->END
-module division(
+module division2(
   input wire [3:0] dividend_inp,
   input wire [3:0] divisor_inp,
   input wire rst,
@@ -20,6 +20,8 @@ module division(
   parameter SUB = 3'b100;
   parameter LAST =3'b101;
   parameter STOP =3'b110;
+  assign check = (accumulator_rem_dividend[7])?0:1;
+  
   
   always @(posedge clk or posedge rst) begin
     if(rst)
@@ -43,25 +45,26 @@ module division(
       LOAD:
         newstate = SUB;
       
-      SHIFT:
+      SHIFT: begin
       if(check)
-        newstate = ADD;
-      else 
         newstate = SUB;
+      else 
+        newstate = ADD;
+        end
       
       ADD: begin
-        if(counter == 3)
+      if(counter == 3)
         newstate = LAST;
         else
         newstate = SHIFT;
-       end
-       
-       SUB: begin
-       if(counter == 3)
+        end
+
+       SUB:begin
+      if(counter == 3)
         newstate = LAST;
         else
         newstate = SHIFT;
-       end
+        end
              
       LAST: 
         newstate = STOP;
@@ -73,8 +76,6 @@ module division(
       
     endcase
   end
- 
-  assign check = (accumulator_rem_dividend[7])?1:0;
   
   //state logic
   always @(posedge clk) begin
@@ -87,15 +88,15 @@ module division(
       end
       
       LOAD: begin
-        accumulator_rem_dividend[4:1] = dividend_inp[3:0];
-        divisor = divisor_inp;
+        accumulator_rem_dividend[4:1] <= dividend_inp[3:0];
+        divisor <= divisor_inp;
       end
       
-      SHIFT: begin
-          if(check)
-          accumulator_rem_dividend <= (accumulator_rem_dividend << 1);
+      SHIFT:begin
+         if(check)
+          accumulator_rem_dividend[7:0] <= {accumulator_rem_dividend[6:1],1'b1,1'b0};
           else
-          accumulator_rem_dividend <= (accumulator_rem_dividend|8'b00000001) << 1;
+          accumulator_rem_dividend[7:0] <= {accumulator_rem_dividend[6:1],1'b0,1'b0};
           end
           
       ADD: begin
@@ -109,10 +110,13 @@ module division(
       end    
           
       LAST: begin
-          if(check)
+          if(check) begin
+          accumulator_rem_dividend[0] <= 1;
+          end
+          else begin
           accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] + divisor[3:0];
-          else
-          accumulator_rem_dividend <= accumulator_rem_dividend;
+          accumulator_rem_dividend[0] <= 0;
+          end
       end
       
       STOP: newstate <= STOP;
