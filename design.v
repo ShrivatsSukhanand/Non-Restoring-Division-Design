@@ -1,6 +1,6 @@
 //non restroing division design for unsigned 4 bit numbers
 //fsm: INIT->LOAD->CALC->END
-module division2(
+module division3(
   input wire [3:0] dividend_inp,
   input wire [3:0] divisor_inp,
   input wire rst,
@@ -11,15 +11,16 @@ module division2(
   reg [3:0] divisor;
   reg [2:0] state;
   reg [2:0] newstate;
-  reg [2:0] counter;
+  reg [1:0] counter; 
   wire check;
   parameter INIT = 3'b000;
-  parameter LOAD = 3'b001;
-  parameter SHIFT = 3'b010;
-  parameter ADD = 3'b011;
-  parameter SUB = 3'b100;
-  parameter LAST =3'b101;
-  parameter STOP =3'b110;
+  parameter CHECK = 3'b001;
+  parameter LOAD = 3'b010;
+  parameter SHIFT = 3'b011;
+  parameter CALC = 3'b100;
+  parameter RECALC = 3'b101;
+  parameter LAST =3'b110;
+  parameter STOP =3'b111;
   assign check = (accumulator_rem_dividend[7])?0:1;
   
   
@@ -43,32 +44,29 @@ module division2(
       end
       
       LOAD:
-        newstate = SUB;
+        newstate = CHECK;
       
-      SHIFT: begin
-      if(check)
-        newstate = SUB;
-      else 
-        newstate = ADD;
-        end
+      CHECK: begin
+        newstate = CALC;
+      end
       
-      ADD: begin
+      SHIFT:
+        newstate = CALC;
+      
+      CALC: begin
       if(counter == 3)
         newstate = LAST;
         else
         newstate = SHIFT;
         end
-
-       SUB:begin
-      if(counter == 3)
-        newstate = LAST;
-        else
-        newstate = SHIFT;
-        end
-             
+            
       LAST: 
+        newstate = RECALC;
+      
+      RECALC: begin
         newstate = STOP;
-        
+      end
+       
       STOP:
         newstate = STOP;
 
@@ -82,14 +80,21 @@ module division2(
     case(state)
       
       INIT: begin
-    	divisor <= 0;
+    	divisor[3:0] <= 0;
         accumulator_rem_dividend[7:0] <= 0;
-    	counter <= 0;
+    	counter[1:0] <= 0;
       end
       
       LOAD: begin
         accumulator_rem_dividend[4:1] <= dividend_inp[3:0];
-        divisor <= divisor_inp;
+        divisor[3:0] <= divisor_inp[3:0];
+      end
+      
+      CHECK: begin
+        if(dividend_inp[3])
+          accumulator_rem_dividend[4:1] <= 4'b0-accumulator_rem_dividend[4:1];
+        if(divisor_inp[3])
+          divisor[3:0] <= 4'b0-divisor[3:0];
       end
       
       SHIFT:begin
@@ -99,15 +104,16 @@ module division2(
           accumulator_rem_dividend[7:0] <= {accumulator_rem_dividend[6:1],1'b0,1'b0};
           end
           
-      ADD: begin
-          accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] + divisor[3:0];
-          counter <= counter + 2'b01;
-      end
-       
-      SUB: begin
+      CALC: begin
+         if(check) begin
           accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] - divisor[3:0];
           counter <= counter + 2'b01;
-      end    
+          end
+         else begin
+          accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] + divisor[3:0];
+          counter <= counter + 2'b01;
+          end
+      end  
           
       LAST: begin
           if(check) begin
@@ -116,7 +122,19 @@ module division2(
           else begin
           accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] + divisor[3:0];
           accumulator_rem_dividend[0] <= 0;
+          end    
+      end
+      
+      RECALC: begin
+          case({dividend_inp[3],divisor_inp[3]})
+          2'b00: ;
+          2'b01: accumulator_rem_dividend[3:0] <= 4'b0-accumulator_rem_dividend[3:0]; //quotient gets negative
+          2'b10: begin
+          accumulator_rem_dividend[3:0] <= 4'b0-accumulator_rem_dividend[3:0];
+          accumulator_rem_dividend[7:4] <= 4'b0-accumulator_rem_dividend[7:4]; //both q and r gets negative
           end
+          2'b11: accumulator_rem_dividend[7:4] <= 4'b0-accumulator_rem_dividend[7:4]; //only r gets negative
+          endcase
       end
       
       STOP: newstate <= STOP;
