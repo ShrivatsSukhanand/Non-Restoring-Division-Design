@@ -29,7 +29,7 @@ module tb();
   wire [7:0] accumulator_rem_dividend;
   integer j = 4;
   
-  division2 uut(
+  division3 uut(
     .dividend_inp(dividend_inp),
     .divisor_inp(divisor_inp),
     .rst(rst),
@@ -38,21 +38,22 @@ module tb();
   );
    always #5 clk = ~clk;
    
+   always #5 begin
+    if(uut.state == 3'b111)
+    $finish;
+ 
+    end
+    
    initial begin
     clk = 0;
     rst = 1;
 
     #5; rst = 0;
-     #10; dividend_inp = 4'd7;
-     divisor_inp =4'd3;
+     #10; dividend_inp = 4'b0111;
+     divisor_inp =4'b0011;
      #5;
-    repeat(j) begin
-     $display("[%t] %h\n",$time,uut.accumulator_rem_dividend);
      #100;
-     end
-    // @(posedge clk);
-    #1000;
-     $finish;
+
    end
     
     
