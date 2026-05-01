@@ -1,5 +1,5 @@
 # Non-Restoring-Division-Design
-This design implements 16-bit signed integer division using the Non-Restoring algorithm, constrained such that the magnitude of the dividend is always greater than the divisor. Verified using a layered SystemVerilog testbench architecture on Aldec Riviera-PRO 2025.04 via (EDA Playground)[https://www.edaplayground.com/x/fiAu], and synthesized on Vivado ML 2025.2.1.
+This design implements 17-bit signed integer division using the Non-Restoring algorithm, constrained such that the magnitude of the dividend is always greater than the divisor. Verified using a layered SystemVerilog testbench architecture on Aldec Riviera-PRO 2025.04 via (EDA Playground)[https://www.edaplayground.com/x/fiAu], and synthesized on Vivado ML 2025.2.1.
 
 Working through this project, strengthened FSM design understanding and sharpened hardware debugging skills. Debugging were assisted by Claude and Google AI.
 Please check the eloborated design and Setup and Hold time details attached in the Design_result folder, the Clock frequencey obtained through synthesis is 285.71MHz
