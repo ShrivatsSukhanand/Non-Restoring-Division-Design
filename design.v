@@ -1,18 +1,18 @@
-//non restroing division design for unsigned 4 bit numbers
-//fsm: INIT->LOAD->CALC->END
-module division3(
-  input wire [3:0] dividend_inp,
-  input wire [3:0] divisor_inp,
+module division2(
+  input wire [16:0] dividend_inp,
+  input wire [16:0] divisor_inp,
   input wire rst,
   input wire clk,
-  output reg [7:0] accumulator_rem_dividend
+  output reg [33:0] accumulator_rem_dividend,
+  output valid
 );
   
-  reg [3:0] divisor;
+  reg [16:0] divisor;
   reg [2:0] state;
   reg [2:0] newstate;
-  reg [1:0] counter; 
+  reg [5:0] counter; 
   wire check;
+  reg save;
   parameter INIT = 3'b000;
   parameter CHECK = 3'b001;
   parameter LOAD = 3'b010;
@@ -21,8 +21,8 @@ module division3(
   parameter RECALC = 3'b101;
   parameter LAST =3'b110;
   parameter STOP =3'b111;
-  assign check = (accumulator_rem_dividend[7])?0:1;
-  
+  assign check = (accumulator_rem_dividend[33])?0:1;
+  assign valid = (state == STOP)?1:0;
   
   always @(posedge clk or posedge rst) begin
     if(rst)
@@ -54,7 +54,7 @@ module division3(
         newstate = CALC;
       
       CALC: begin
-      if(counter == 3)
+      if(counter == 16)
         newstate = LAST;
         else
         newstate = SHIFT;
@@ -80,37 +80,40 @@ module division3(
     case(state)
       
       INIT: begin
-    	divisor[3:0] <= 0;
-        accumulator_rem_dividend[7:0] <= 0;
-    	counter[1:0] <= 0;
+    	divisor[16:0] <= 0;
+        accumulator_rem_dividend[33:0] <= 0;
+    	counter[5:0] <= 0;
+        save <= 0;
       end
       
       LOAD: begin
-        accumulator_rem_dividend[4:1] <= dividend_inp[3:0];
-        divisor[3:0] <= divisor_inp[3:0];
+        accumulator_rem_dividend[17:1] <= dividend_inp[16:0];
+        divisor[16:0] <= divisor_inp[16:0];
       end
       
       CHECK: begin
-        if(dividend_inp[3])
-          accumulator_rem_dividend[4:1] <= 4'b0-accumulator_rem_dividend[4:1];
-        if(divisor_inp[3])
-          divisor[3:0] <= 4'b0-divisor[3:0];
+        if(dividend_inp[16])
+          accumulator_rem_dividend[17:1] <= 4'b0-accumulator_rem_dividend[17:1];
+        if(divisor_inp[16])
+          divisor[16:0] <= 4'b0-divisor[16:0];
       end
       
       SHIFT:begin
+         save = accumulator_rem_dividend[33];
          if(check)
-          accumulator_rem_dividend[7:0] <= {accumulator_rem_dividend[6:1],1'b1,1'b0};
+          accumulator_rem_dividend[33:0] <= {accumulator_rem_dividend[32:1],1'b1,1'b0};
           else
-          accumulator_rem_dividend[7:0] <= {accumulator_rem_dividend[6:1],1'b0,1'b0};
+          accumulator_rem_dividend[33:0] <= {accumulator_rem_dividend[32:1],1'b0,1'b0};          
           end
           
       CALC: begin
-         if(check) begin
-          accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] - divisor[3:0];
+          
+         if(~save) begin
+          accumulator_rem_dividend[33:17] <= accumulator_rem_dividend[33:17] - divisor[16:0];
           counter <= counter + 2'b01;
           end
          else begin
-          accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] + divisor[3:0];
+          accumulator_rem_dividend[33:17] <= accumulator_rem_dividend[33:17] + divisor[16:0];
           counter <= counter + 2'b01;
           end
       end  
@@ -120,26 +123,26 @@ module division3(
           accumulator_rem_dividend[0] <= 1;
           end
           else begin
-          accumulator_rem_dividend[7:4] <= accumulator_rem_dividend[7:4] + divisor[3:0];
+          accumulator_rem_dividend[33:17] <= accumulator_rem_dividend[33:17] + divisor[16:0];
           accumulator_rem_dividend[0] <= 0;
           end    
       end
       
       RECALC: begin
-          case({dividend_inp[3],divisor_inp[3]})
+          case({dividend_inp[16],divisor_inp[16]})
           2'b00: ;
-          2'b01: accumulator_rem_dividend[3:0] <= 4'b0-accumulator_rem_dividend[3:0]; //quotient gets negative
+          2'b01: accumulator_rem_dividend[16:0] <= 4'b0-accumulator_rem_dividend[16:0]; //quotient gets negative
           2'b10: begin
-          accumulator_rem_dividend[3:0] <= 4'b0-accumulator_rem_dividend[3:0];
-          accumulator_rem_dividend[7:4] <= 4'b0-accumulator_rem_dividend[7:4]; //both q and r gets negative
+          accumulator_rem_dividend[16:0] <= 4'b0-accumulator_rem_dividend[16:0];
+          accumulator_rem_dividend[33:17] <= 4'b0-accumulator_rem_dividend[33:17]; //both q and r gets negative
           end
-          2'b11: accumulator_rem_dividend[7:4] <= 4'b0-accumulator_rem_dividend[7:4]; //only r gets negative
+          2'b11: accumulator_rem_dividend[33:17] <= 4'b0-accumulator_rem_dividend[33:17]; //only r gets negative
           endcase
       end
       
-      STOP: newstate <= STOP;
+//      STOP: newstate <= STOP;
       
-      default: newstate <= INIT;
+//      default: newstate <= INIT;
       
     endcase
  end
