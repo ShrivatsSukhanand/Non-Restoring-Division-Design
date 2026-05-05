@@ -25,8 +25,5 @@ report_area > design_area.rpt
 
 report_power > design_power.rpt
 
-report_constraint > filename_constraint.rpt
 write_hdl > filename_netlist.v
-gui_show
-write_sdc > filename_final.sdc 
 gui_show
