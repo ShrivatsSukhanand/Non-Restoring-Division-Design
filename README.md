@@ -1,9 +1,16 @@
 # Non-Restoring-Division-Design
-This design implements 17-bit signed integer division using the Non-Restoring algorithm, constrained such that the magnitude of the dividend is always greater than the divisor. Verified using a layered SystemVerilog testbench architecture on Aldec Riviera-PRO 2025.04 via (EDA Playground)[https://www.edaplayground.com/x/fiAu], and synthesized on Vivado ML 2025.2.1.
+This design implements 17-bit signed integer division using the Non-Restoring algorithm, constrained such that the magnitude of the dividend is always greater than the divisor. Verified using a layered SystemVerilog testbench architecture on Aldec Riviera-PRO 2025.04 via (EDA Playground)[https://www.edaplayground.com/x/fiAu]
+
+**Synthesis** : Successfully mapped RTL to the 45nm Library using Cadence Genus, resulting in 488 cell count.
+
+**Timing** : Achieved closure at a 3.5ns clock period (approx. 285MHz) with a healthy +1413ps setup slack.
+
+**Power**: Total estimated power consumption is 1.32mW.
+
+**Area**: While cell counts are 488, the tool currently reports a total area of 0. This is suspected to be attributed to missing area definitions within the lab-provided FOUNDRY .lib/.lef files. Currently investigating library characterization to enable physical dimension mapping.
 
 Working through this project, strengthened FSM design understanding and sharpened hardware debugging skills. Debugging were assisted by Claude and Google AI.
 
-Please check the elaborated design and Setup and Hold time details attached in the Design_result folder, the Clock frequencey obtained through synthesis is 285.71MHz
 **Verification**
 
 The output is a 36-bit value where the lower 17 bits represent the quotient and the next 17 bits represent the remainder. The remaining bits are padding for hexadecimal alignment.
