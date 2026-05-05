@@ -1,0 +1,32 @@
+csh
+source /home/install/cshrc
+genus
+set_db / .init_lib_search_path {/home/install/FOUNDRY/digital/45nm/dig/lib}
+set_db / .init_hdl_search_path {rtl}
+set_db / .library "typical.lib"
+read_hdl filename.v
+elaborate module_name
+read_sdc constraints.g
+
+set_db syn_generic_effort high
+set_db syn_map_effort high
+set_db syn_opt_effort high
+syn_generic
+syn_map
+syn_opt
+
+check_timing 
+check_design -all 
+
+report_timing -nworst 10 > design_timing.rpt
+report_timing > design_timing
+
+report_area > design_area.rpt
+
+report_power > design_power.rpt
+
+report_constraint > filename_constraint.rpt
+write_hdl > filename_netlist.v
+gui_show
+write_sdc > filename_final.sdc 
+gui_show
