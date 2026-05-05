@@ -1,13 +1,13 @@
 # Non-Restoring-Division-Design
 This design implements 17-bit signed integer division using the Non-Restoring algorithm, constrained such that the magnitude of the dividend is always greater than the divisor. Verified using a layered SystemVerilog testbench architecture on Aldec Riviera-PRO 2025.04 via (EDA Playground)[https://www.edaplayground.com/x/fiAu]
 
-Please check the Report_Netlist folder to find the reports and netlist
+Please check the Results_Genus folder to find the relevant reports and netlist
 
 **Simulation**: Designed on Vivado 2025.2.1 and verified the simulations
 
 **Synthesis** : Successfully mapped RTL to the 45nm Library using Cadence Genus, resulting in 488 cell count and netlist was obtained
 
-**Timing** : Achieved closure at a 3.5ns clock period (approx. 285MHz) with a healthy +1413ps setup slack.
+**Timing** : Achieved closure at a 3.5ns clock period (approx. 285MHz) with a healthy +1413ps setup slack.The Timing report and report of top 10 worst paths are attached in Results_Genus folder 
 
 **Power**: Total estimated power consumption is 1.32mW.
 
