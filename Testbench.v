@@ -1,3 +1,4 @@
+//This testbench is without valid signal, and was used for Vivado. The valid signal is used with SystemVerilog testbench.
 module tb();
   reg [16:0] dividend_inp;
   reg [16:0] divisor_inp;
