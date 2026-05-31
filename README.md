@@ -3,11 +3,11 @@ This design implements 17-bit signed integer division using the Non-Restoring al
 
 **Simulation**: Designed on Vivado 2025.2.1 and verified the simulations
 
-**Synthesis** : > Synthesized using **Cadence Genus 21.14** | 45nm technology | 500 MHz target clock  
+**Synthesis** :  Synthesized using **Cadence Genus 21.14** | 45nm technology | 500 MHz target clock  
 
 **Area**: The tool currently reports a total area of 0. This is suspected to be attributed to missing area definitions within the FOUNDRY files.
 
-**Verification**: SystemVerilog layered testbench (transaction–monitor architecture), validated across 20 input vectors covering all signed/unsigned combinations.
+**Pre-synthesis Verification**: SystemVerilog layered testbench (transaction–monitor architecture), validated across 20 input vectors covering all signed/unsigned combinations.
 
 **Manual Verification**
 
@@ -44,18 +44,18 @@ A comparative study of synthesis results before and after enabling automatic clo
 | Clock        | 25.9 µW       | 82.5 µW      | +218% (ICG overhead) |
 | **Total**    | **2459.6 µW** | **2425.4 µW**| **−1.4%**   |
 
-> The Logic power increase is due to the 5 inserted ICG cells, as they are classified under logic, not register.
-> The clock leakage and internal power consumption increase from 0, after gating.
-> The register savings dominate, resulting in a net total power reduction.
+- The Logic power increase is due to the 5 inserted ICG cells, as they are classified under logic, not register.
+- The clock leakage and internal power consumption increase from 0, after gating.
+- The register savings dominate, resulting in a net total power reduction.
 
 ### Area
 
 | Metric      | Before Gating | After Gating | Change       |
 |-------------|---------------|--------------|--------------|
 | Cell Count  | 556           | 494          | **−11.2%**   |
-| Cell Area   | N/A           | N/A          | — (liberty file issue) |
+| Cell Area   | N/A           | N/A          | (liberty file issue) |
 
-> Cell count reduction is a side effect of Genus re-optimizing the netlist during ICG insertion — 5 ICG cells added, 67 cells eliminated through remapping.
+- Cell count reduction is a side effect of Genus re-optimizing the netlist during ICG insertion — 5 ICG cells added, 67 cells eliminated through remapping.
 
 ### Timing
 
@@ -68,9 +68,9 @@ A comparative study of synthesis results before and after enabling automatic clo
 | Required time       | 1900 ps                | 1925 ps                 |
 | **Slack**           | **+352 ps**       | **+321 ps**      |
 
-> Clock gating caused Genus to remap the launch FF to `MDFFHQX4` (ICG-compatible, faster CK→Q). However, netlist restructuring slightly elongated the combinational path. Timing closure maintained with positive slack throughout.
-> **DFFX4**: Standard D-flip-flop with four times the baseline drive strength.
-> **MDFFHQX4**: Multiplexed high-speed scan flip-flop with four times drive strength.
+- Clock gating caused Genus to remap the launch FF to `MDFFHQX4` (ICG-compatible, faster CK→Q). However, netlist restructuring slightly elongated the combinational path. Timing closure maintained with positive slack throughout.
+- **DFFX4**: Standard D-flip-flop with four times the baseline drive strength.
+- **MDFFHQX4**: Multiplexed high-speed scan flip-flop with four times drive strength.
 
 ## Clock Gating Coverage
 
@@ -82,7 +82,7 @@ A comparative study of synthesis results before and after enabling automatic clo
 | Average toggle saving         | **67.47%**   |
 | Ungated FFs                   | 2            |
 
-> The Ungated FF are due to ICG overhead > savings for tiny register groups, thus Genus ignores them.
+- The Ungated FF are due to ICG overhead > savings for tiny register groups, thus Genus ignores them.
 
 ## Key Takeaways
 
